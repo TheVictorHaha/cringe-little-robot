@@ -34,13 +34,9 @@ void move(double targetAngle, double translationSpeed, double angularSpeed){
 
 void takeInput(double translationX, double translationY, double throttle, double anchorChange){
   double angle = tan(translationY / translationX);
-  // double scaledX = translationX * sqrt(1 - translationY * translationY / 2);
-  // double scaledY = translationY * sqrt(1 - translationX * translationX / 2);
 
-  //DO THIS SOME OTHER TIME :)
-  double small = sqrt(translationX * translationX + translationY * translationY);
-  double large = small / translationY;
-  double scaledY;
+  //Change input coming from square of possible x and y into circle of possible velocities
+  double translationSpeed = translationY > translationX ? translationY : translationX;
 
   double xSpeed = throttle;
   double ySpeed = throttle;
