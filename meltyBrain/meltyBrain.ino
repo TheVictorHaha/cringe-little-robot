@@ -1,12 +1,11 @@
 #include <math.h>
 
-double anchorAngle = 0;
+double fwdAngle = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  anchorAngle = 0;
+  fwdAngle = 0;
 }
-
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -17,15 +16,25 @@ void setSpeeds(double leftMotor, double rightMotor){
 
 }
 
-void changeAnchorAngle(){
-
+double deltaTime = 0;
+double oldTime = 0;
+void updateDeltaTime(){
+  double currTime = millis();
+  deltaTime = currTime - oldTime;
+  oldTime = currTime;
 }
 
-double angle;
+double changeScaler = 1;
+void changeFwdAngle(double changeRate){
+  fwdAngle += changeRate * changeScaler * deltaTime;
+}
+
+double gyroAngle;
 double angularSpeed;
 
 void updateSensors(){
-
+  double gyroOffset = 0;// work this into the angle calculation
+  gyroAngle += gyroOffset;
 }
 
 void move(double targetAngle, double translationSpeed, double angularSpeed){
@@ -33,7 +42,7 @@ void move(double targetAngle, double translationSpeed, double angularSpeed){
 }
 
 void takeInput(double translationX, double translationY, double throttle, double anchorChange){
-  double angle = tan(translationY / translationX);
+  double angle = atan(translationY / translationX);
 
   //Change input coming from square of possible x and y into circle of possible velocities
   double translationSpeed = translationY > translationX ? translationY : translationX;
@@ -43,8 +52,11 @@ void takeInput(double translationX, double translationY, double throttle, double
 }
 
 void pulseMotors(double translationPower, double spinPower, double targetAngle){
-  double motor1Pos;
-  double motor2Pos;
+  double motor1Pos = 90;
+  double motor2Pos = 270;
+  motor1Pos += gyroAngle;
+  motor2Pos += gyroAngle;
+  
+  double angleBound = 
+
 }
-
-
