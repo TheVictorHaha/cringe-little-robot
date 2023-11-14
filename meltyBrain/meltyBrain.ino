@@ -42,13 +42,37 @@ void move(double targetAngle, double translationSpeed, double angularSpeed){
 }
 
 void takeInput(double translationX, double translationY, double throttle, double anchorChange){
-  double angle = atan(translationY / translationX);
+  double angle;
+  if(translationX != 0){
+    angle = atan(translationY / translationX) + (translationX < 0 ? 180 : 0);
+  } else {
+    angle = translationY > 0 ? 0 : 180;
+  }
+
 
   //Change input coming from square of possible x and y into circle of possible velocities
   double translationSpeed = translationY > translationX ? translationY : translationX;
 
   double xSpeed = throttle;
   double ySpeed = throttle;
+}
+
+class motor {
+  public:
+    int positionOffset;
+
+    void setSpeed(double speed){
+
+    }
+
+    double SPEED_COEFFECIENT = 1;
+    void update(double angleReading, double angleInput, double inputSpeed, double throttle){
+      double currAngle = angleReading + positionOffset;
+      currAngle %= 360;
+      double reading = currAngle - angleInput + (currAngle - angleInput < 0 ? 360 : 0);
+      double modifier = reading < 180 ? 1 : -1;
+      setSpeed(throttle + modifier * inputSpeed * SPEED_COEFFECIENT);
+    }
 }
 
 void pulseMotors(double translationPower, double spinPower, double targetAngle){
