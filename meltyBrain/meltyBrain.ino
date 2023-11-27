@@ -1,5 +1,29 @@
 #include <math.h>
 
+class motor {
+  public:
+    int positionOffset;
+    int port;
+
+    motor(int port_, int positionOffset_){
+      port = port_;
+      positionOffset = positionOffset_;
+    }
+
+    void setSpeed(double speed){
+
+    }
+
+    double SPEED_COEFFECIENT = 1;
+    void update(double angleReading, double angleInput, double inputSpeed, double throttle){
+      double currAngle = angleReading + positionOffset;
+      currAngle = fmod(currAngle, 360.0);
+      double reading = currAngle - angleInput + (currAngle - angleInput < 0 ? 360 : 0);
+      double modifier = reading < 180 ? 1 : -1;
+      setSpeed(throttle + modifier * inputSpeed * SPEED_COEFFECIENT);
+    }
+};
+
 double fwdAngle = 0;
 
 void setup() {
@@ -7,13 +31,16 @@ void setup() {
   fwdAngle = 0;
 }
 
+int TRANSLATION_X_PIN;
+int TRANSLATION_Y_PIN;
+int THROTTLE_PIN;
+int ANCHOR_CHANGE_PIN;
+
 void loop() {
   // put your main code here, to run repeatedly:
-
-}
-
-void setSpeeds(double leftMotor, double rightMotor){
-
+  updateSensors();
+  updateDeltaTime();
+  takeInput(analogRead(TRANSLATION_X_PIN), analogRead(TRANSLATION_Y_PIN), analogRead(THROTTLE_PIN), analogRead(ANCHOR_CHANGE_PIN));
 }
 
 double deltaTime = 0;
@@ -37,11 +64,12 @@ void updateSensors(){
   gyroAngle += gyroOffset;
 }
 
-void move(double targetAngle, double translationSpeed, double angularSpeed){
-
-}
+motor leftMotor(1, -90);
+motor rightMotor(2, 90);
 
 void takeInput(double translationX, double translationY, double throttle, double anchorChange){
+  changeFwdAngle(anchorChange);
+
   double angle;
   if(translationX != 0){
     angle = atan(translationY / translationX) + (translationX < 0 ? 180 : 0);
@@ -49,38 +77,16 @@ void takeInput(double translationX, double translationY, double throttle, double
     angle = translationY > 0 ? 0 : 180;
   }
 
+  angle += fwdAngle;
+  if(angle < 0) angle += 360;
+
 
   //Change input coming from square of possible x and y into circle of possible velocities
   double translationSpeed = translationY > translationX ? translationY : translationX;
 
-  double xSpeed = throttle;
-  double ySpeed = throttle;
-}
-
-class motor {
-  public:
-    int positionOffset;
-
-    void setSpeed(double speed){
-
-    }
-
-    double SPEED_COEFFECIENT = 1;
-    void update(double angleReading, double angleInput, double inputSpeed, double throttle){
-      double currAngle = angleReading + positionOffset;
-      currAngle %= 360;
-      double reading = currAngle - angleInput + (currAngle - angleInput < 0 ? 360 : 0);
-      double modifier = reading < 180 ? 1 : -1;
-      setSpeed(throttle + modifier * inputSpeed * SPEED_COEFFECIENT);
-    }
-}
-
-void pulseMotors(double translationPower, double spinPower, double targetAngle){
-  double motor1Pos = 90;
-  double motor2Pos = 270;
-  motor1Pos += gyroAngle;
-  motor2Pos += gyroAngle;
-  
-  double angleBound = 
+  leftMotor.update(gyroAngle, angle, translationSpeed, throttle);
+  rightMotor.update(gyroAngle, angle, translationSpeed, throttle);
 
 }
+
+
